@@ -1,0 +1,80 @@
+﻿#pragma kernel initialize
+#pragma kernel update
+
+struct Particle 
+{
+    float3 pos;
+    float3 vel;
+    float3 col;
+};
+
+RWStructuredBuffer<Particle> Particles;
+float deltaTime;
+
+// 便利関数
+float rand(float2 st)
+{
+    return frac(sin(dot(st, float2(12.9898, 78.233))) * 43758.5453);
+}
+float2 rand2(float2 st)
+{
+    return float2(rand(st), rand(st + 1));
+}
+float3 rand3(float2 st) 
+{
+    return float3(rand(st), rand(st + 10), rand(st + 2));
+}
+
+// 初期化
+void init(uint id) 
+{
+    float2 seed = float2((1.0 / 256.0) * (float)(id % 256), (1.0 / 256.0) * ((float)((id / 256) % 256)));
+
+    // 2.0 の高さの半径0.5の円盤上に配置
+    float2 r2 = rand2(seed);
+    float3 pos;
+    pos.x = 0.5 * r2.x * cos(r2.y * 2.0 * 3.141592);
+    pos.z = 0.5 * r2.x * sin(r2.y * 2.0 * 3.141592);
+    pos.y = 2.0;
+
+    // 速度は、半球状に乱数で広がる
+    float3 r3 = rand3(seed * 2);
+    float3 vel;
+    vel.x = 3 * r3.x * cos(r3.z * 0.5 * 3.1415) * cos(r3.y * 2.0 * 3.141592);
+    vel.z = 3 * r3.x * cos(r3.z * 0.5 * 3.1415) * sin(r3.y * 2.0 * 3.141592);
+    vel.y = 5 * r3.x * sin(r3.z * 0.5 * 3.1415) + 5.0;
+
+    Particles[id].pos = pos;
+    Particles[id].vel = vel;
+    Particles[id].col = rand3(seed);
+}
+
+#define THREAD_NUM 64
+
+[numthreads(THREAD_NUM, 1, 1)]
+void initialize(uint3 id : SV_DispatchThreadID) 
+{
+    init(id.x);
+}
+
+[numthreads(THREAD_NUM, 1, 1)]
+void update(uint3 id : SV_DispatchThreadID) 
+{
+    float3 pos = Particles[id.x].pos;
+    float3 vel = Particles[id.x].vel;
+
+    // 下に行き過ぎたらリセット
+    if (pos.y < 0.0) 
+    {
+        init(id.x);
+        return;
+    }
+
+    // 陽オイラー
+    pos += vel * deltaTime;
+    vel.y -= 9.8 * deltaTime;
+
+    // 値の格納
+    Particles[id.x].pos = pos;
+    Particles[id.x].vel = vel;
+}
