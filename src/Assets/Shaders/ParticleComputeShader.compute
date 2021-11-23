@@ -43,10 +43,10 @@ void init(uint id)
     vel.x = 3 * r3.x * cos(r3.z * 0.5 * 3.1415) * cos(r3.y * 2.0 * 3.141592);
     vel.z = 3 * r3.x * cos(r3.z * 0.5 * 3.1415) * sin(r3.y * 2.0 * 3.141592);
     vel.y = 5 * r3.x * sin(r3.z * 0.5 * 3.1415) + 5.0;
+    Particles[id].col = rand3(seed);
 
     Particles[id].pos = pos;
     Particles[id].vel = vel;
-    Particles[id].col = rand3(seed);
 }
 
 #define THREAD_NUM 64

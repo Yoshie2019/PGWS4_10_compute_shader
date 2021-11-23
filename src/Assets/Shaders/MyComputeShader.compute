@@ -1,0 +1,17 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWStructuredBuffer<float2> ResultMyBuffer;
+float2 ShaderSidePosition;
+float ShaderSideTime;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    ShaderSidePosition.x += cos(ShaderSideTime * 1000) / 0.25;
+    ShaderSidePosition.y += 1;
+    ResultMyBuffer[0] = float2(ShaderSidePosition.x, ShaderSidePosition.y);
+}

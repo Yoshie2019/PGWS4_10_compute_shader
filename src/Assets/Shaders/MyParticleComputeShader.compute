@@ -1,0 +1,13 @@
+﻿#pragma kernel CSMain
+
+RWStructuredBuffer<float2> ResultBuffer;
+float2 position;
+float time;
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    position.x += cos(time * 10) * 0.1;
+    position.y += sin(time * 10) * 0.1;
+    ResultBuffer[0] = float2(position.x, position.y);
+}

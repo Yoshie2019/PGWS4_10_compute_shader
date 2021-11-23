@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices; // MarShal‚ðŽg‚¤
 
-struct Particle 
+struct Particle
 {
     public Vector3 pos;
     public Vector3 vel;
